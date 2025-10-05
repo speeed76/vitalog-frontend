@@ -5,6 +5,8 @@ import { NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
 import HomeScreen from './screens/HomeScreen';
 import LogbookScreen from './screens/LogbookScreen';
+import TemperatureScreen from './screens/TemperatureScreen';
+
 
 // Tu dodamy w przyszłości inne ekrany
 // import LogbookScreen from './screens/LogbookScreen';
@@ -24,6 +26,11 @@ export default function App() {
           name="Logbook" 
           component={LogbookScreen} 
           options={{ title: 'Dziennik Wpisów' }}
+        />
+        <Stack.Screen 
+          name="Temperature" 
+          component={TemperatureScreen} 
+          options={{ title: 'Nowy Pomiar Temperatury' }}
         />
       </Stack.Navigator>
     </NavigationContainer>

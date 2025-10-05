@@ -15,7 +15,7 @@ export default function HomeScreen({ navigation }: HomeScreenProps) {
     <SafeAreaView style={styles.container}>
       <Text style={styles.title}>VitaLog</Text>
       <View style={styles.menu}>
-        <TouchableOpacity style={styles.button} onPress={() => { /* TODO: Nawigacja */ }}>
+        <TouchableOpacity style={styles.button} onPress={() => { navigation.navigate('Temperature'); }}>
           <Text style={styles.buttonText}>🌡️ Temperatura</Text>
         </TouchableOpacity>
         <TouchableOpacity style={styles.button} onPress={() => { /* TODO: Nawigacja */ }}>
