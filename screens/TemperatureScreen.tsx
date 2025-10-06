@@ -53,7 +53,7 @@ export default function TemperatureScreen({ navigation }: TemperatureScreenProps
         minValue={35.0}
         maxValue={42.0}
         initialValue={temperature}
-        onValueChange={(value) => setTemperature(parseFloat(value.toFixed(1)))}
+        onValueChange={setTemperature}
       />
       <TouchableOpacity
         style={[styles.saveButton, isLoading && styles.saveButtonDisabled]}

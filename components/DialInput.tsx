@@ -1,6 +1,6 @@
 // components/DialInput.tsx
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { StyleSheet, View, Text } from 'react-native';
 import { Gesture, GestureDetector } from 'react-native-gesture-handler';
 import Animated, {
@@ -20,6 +20,20 @@ type DialInputProps = {
   unit: string;
 };
 
+// --- Helper Functions ---
+const clampValue = (value: number, min: number, max: number): number => {
+  return Math.max(min, Math.min(max, value));
+};
+
+const roundToOneDecimal = (value: number): number => {
+  return Math.round(value * 10) / 10;
+};
+
+const valueToAngle = (value: number, minValue: number, maxValue: number): number => {
+  const normalizedValue = (value - minValue) / (maxValue - minValue);
+  return (normalizedValue * 2 * Math.PI) - (Math.PI / 2);
+};
+
 // --- Main Component ---
 export default function DialInput({
   radius = 120,
@@ -30,8 +44,16 @@ export default function DialInput({
   label,
   unit,
 }: DialInputProps) {
-  const [value, setValue] = useState(initialValue);
-  const rotation = useSharedValue(0);
+  // Ensure initial value is within range and has proper precision
+  const clampedInitialValue = roundToOneDecimal(clampValue(initialValue, minValue, maxValue));
+  const [value, setValue] = useState(clampedInitialValue);
+  const rotation = useSharedValue(valueToAngle(clampedInitialValue, minValue, maxValue) * (180 / Math.PI));
+
+  // Set initial rotation position
+  useEffect(() => {
+    const initialAngle = valueToAngle(clampedInitialValue, minValue, maxValue) * (180 / Math.PI);
+    rotation.value = initialAngle;
+  }, []);
 
   const dialSize = radius * 2;
   const dimpleSize = radius / 5;
@@ -49,8 +71,13 @@ export default function DialInput({
         normalizedAngle += 1;
       }
       
-      // Map the angle to our min/max value range
-      const newValue = Math.round(normalizedAngle * (maxValue - minValue) + minValue);
+      // Map the angle to our min/max value range with decimal precision
+      const rawValue = normalizedAngle * (maxValue - minValue) + minValue;
+      
+      // Clamp to range and round to 1 decimal place
+      const clampedValue = clampValue(rawValue, minValue, maxValue);
+      const newValue = roundToOneDecimal(clampedValue);
+      
       setValue(newValue);
       onValueChange(newValue);
 
@@ -58,7 +85,10 @@ export default function DialInput({
       rotation.value = angle * (180 / Math.PI) + 90;
     })
     .onEnd(() => {
-        // You could add snapping logic here if desired
+        // Snap to nearest 0.1 increment for better UX
+        const snappedValue = roundToOneDecimal(value);
+        setValue(snappedValue);
+        onValueChange(snappedValue);
     });
 
   const animatedRotationStyle = useAnimatedStyle(() => ({
@@ -72,7 +102,7 @@ export default function DialInput({
         <GestureDetector gesture={panGesture}>
           <View style={styles.touchArea}>
             <View style={styles.centerCircle}>
-              <Text style={styles.valueText}>{value}</Text>
+              <Text style={styles.valueText}>{value.toFixed(1)}</Text>
               <Text style={styles.unitText}>{unit}</Text>
             </View>
             <Animated.View style={[
